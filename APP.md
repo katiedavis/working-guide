@@ -255,8 +255,6 @@ purpose. For more info
 import createShopifyAuth, { verifyRequest } from '@shopify/koa-shopify-auth';
 ```
 
-_server/index.js_
-
 Now we can add the following between our Auth and Hello friends middlewares.
 
 ```js
@@ -271,3 +269,151 @@ will not.
 🎉Congratulations!🎉 You have just built a app that will render in the Shopify
 admin and knows how to authenicate with Shopify. Now lets actually work on
 making our app do something.
+
+#### Step 2 : Serving HTML with React
+
+Maybe you have noticed we only have a server that serves up a string. We will
+use React on the server togenerate our app markup. This will let us reuse our
+code on the server and client and have one source of truth for the resulting UI.
+
+As the quickest of primers, React is a component based library for declaratively
+building user interfaces. Components are expressed as either functions of their
+input (props) or as subclasses of `React.Component`. For more information on
+React, check out
+[it's documentation](https://reactjs.org/tutorial/tutorial.html). We've chosen
+to use React for it's flexibilty as well as our React component library,
+[Polaris](https://github.com/Shopify/polaris).
+
+First, we need to add React and some React related packages to our project:
+
+```bash
+yarn add react react-dom
+```
+
+Lets also add react-router while we are here, it will provide client-side
+routing once we start building out our front-end.
+
+```bash
+yarn add react-router
+```
+
+Lastly, since we know we are going to use React in this project, lets add the
+babel-presets for it:
+
+```bash
+yarn add @babel/preset-react
+```
+
+Then, we can head back to our `.babelrc` file and add it to presets:
+
+```
+{
+  "presets": [
+    "env",
+    “react”,
+    "stage-2"
+  ]
+}
+```
+
+Okay cool! Some React stuff out of the way! But how are we going to use it in
+our server? Middleware again. This middleware will generate markup run our react
+code, lets install a Shopify package that helps us do this.
+
+```bash
+yarn add @shopify/react-html
+```
+
+FYI:
+[For more info on this package](https://www.npmjs.com/package/@shopify/react-html)
+
+This middleware will be a bit larger than our others, so lets devote a new file
+to it. Create a new file in the server directory called `render-react-app.js`
+and add the following code.
+
+```js
+import React from 'react';
+import { renderToString } from 'react-dom/server';
+import HTML from '@shopify/react-html';
+
+export default ctx => {
+  const markup = renderToString(
+    <HTML>
+      <div>Hello this is React speaking to you</div>
+    </HTML>
+  );
+
+  ctx.body = markup;
+};
+```
+
+FYI: React-HTML provides us a component that replaces a standard static HTML
+file like ie: `index.html` and it includes a div with an id 'app', which will
+come in handy later. This could be replaced by index.html, or an esj file if you
+prefered.
+
+So now we have our `render-react-app` file in our `./server` folder, so lets put
+it to use. In our `./server/index.js' file, lets import our new file and add the
+middleware to the chain:
+
+```diff
+// after other imports
++ import renderReactApp from './render-react-app';
+
+// after other middleware
+- app.use(function index(ctx) {
+-   ctx.body = 'Hello Friends :)';
+- });
++ app.use(renderReactApp);
+```
+
+ou should now see "Hello this is React speaking to you", which is great but we
+actually want to render our app, not just a string. To do this we need to start
+thinking in components.
+
+We are going to create our main App component and render that on the server.
+Create a new folder called `/app` and a file called `App.js`, this is where we
+will define our first component, a simple component that renders a title for our
+page.
+
+```js
+import React from 'react';
+
+export default function() {
+  return (
+    <div>
+      <h1>Cool guy example app</h1>
+    </div>
+  );
+}
+```
+
+Now we can use this component in our middleware within
+`server/render-react-app.js`. Head back to the `render-react-app` file and add
+the <App/> component in the <HTML> wrapper.
+
+```diff
+import React from 'react';
+import {renderToString} from 'react-dom/server';
+import HTML from '@shopify/react-html';
+
++ import App from '../app/App';
+
+export default (ctx) => {
+  const markup = renderToString(
+    <HTML>
+-      <div>{title}</div>
++      <App />
+    </HTML>
+  );
+
+  ctx.body = markup;
+}
+```
+
+If you view source or use the inspect panel on your browser on your page now you
+should see a full HTML document with an `app` div and our App component's
+`<h1 />`.
+
+This App component will come to represent the our entire tree of components,
+which can be as deep as it needs to be without ever changing this tag.
