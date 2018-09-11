@@ -1,6 +1,6 @@
 # How to build a public, embedded app
 
-In this repo you'll find everything you need to follow along with the workshop.
+Notes building on the node app from unite workshop. Most of this is not my own.
 
 ## Before starting
 
