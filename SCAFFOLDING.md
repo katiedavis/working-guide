@@ -1,6 +1,7 @@
-## Install Node (and npm)
+## Inital set up of our app
 
-Step 1. Install the latest version of Node. Install the latest LTS version of
+#### Step 1. Install the latest version of Node. Install the latest LTS version of
+
 node from the official site. This will include the npm client we'll use to
 install dependencies `nvm use 8.11.3` (as of writing this 8.11.3 is currently
 the stable version)
@@ -10,7 +11,7 @@ see what the latest version \*\* use `nvm --help` to see all commands
 
 ---
 
-Step 2. Add package.json by running `npm init`
+#### Step 2. Add package.json by running `npm init`
 
 You'll be asked to answer some questions via the command line to build your
 `package.json`:
@@ -20,7 +21,7 @@ Example: name: (example-app-workshop) <- your repo name is the default { "name":
 
 ---
 
-Step 3. Add .gitignore and ignore node_modules
+#### Step 3. Add .gitignore and ignore node_modules
 
 Add a `.gitignore` file with `node_modules` in the body of the file, this
 ensures you don't commit a million packages to git. We will also use this later
@@ -28,7 +29,8 @@ in this workshop to ignore our `.env` file.
 
 ---
 
-Step 4. Add yarn if you prefer it over npm Check out
+#### Step 4. Add yarn if you prefer it over npm Check out
+
 https://yarnpkg.com/en/docs/install#mac-stable for installing yarn
 
 Once yarn is installed, run
@@ -39,7 +41,7 @@ yarn
 
 ---
 
-Step 5. Add babel, add webpack, configure webpack to use babel-loader.
+#### Step 5. Add babel, add webpack, configure webpack to use babel-loader.
 
 We want to run our js files through the babel-loader so that we can use modern
 JS syntax. This package transpiles our Javascript through webpack!
@@ -103,7 +105,8 @@ in your .babelrc file:
 
 ---
 
-Step 6. Add .env file, and get our API Key and Secret from the Partners
+#### Step 6. Add .env file, and get our API Key and Secret from the Partners
+
 Dashboard
 
 Storing configuration in the environment separate from code is based on The
@@ -143,7 +146,7 @@ This will help us later when we need to use our API key and secret variables.
 
 ---
 
-Step 7. Add Dev Dependencies
+#### Step 7. Add Dev Dependencies
 
 #### babel-cli
 
@@ -186,7 +189,7 @@ create a `.prettierrc` file and add:
 
 ---
 
-Step 8. Some extras
+#### Step 8. Some extras
 
 Let’s add an editor config file, do we need this?
 
