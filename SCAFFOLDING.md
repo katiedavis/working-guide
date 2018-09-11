@@ -33,7 +33,9 @@ https://yarnpkg.com/en/docs/install#mac-stable for installing yarn
 
 Once yarn is installed, run
 
+```bash
 yarn
+```
 
 ---
 
@@ -53,11 +55,14 @@ desired set up. We want to use webpack, so after selecting that our command
 would be: `yarn add babel-loader babel-core`
 
 ie: Choose your tool -> webpack Installation ->
-`yarn add babel-loader babel-core`
+
+```bash
+yarn add babel-loader babel-core
+```
 
 Create `webpack.config.js` file and add:
 
-```
+```json
 module: {
     rules: [
         { test: /\.js$/, exclude: /node_modules/, loader: "babel-loader" }
@@ -65,13 +70,21 @@ module: {
 }
 ```
 
-Create a .babelrc file and add some plugins: `yarn add @babel/preset-env --dev`
+Create a .babelrc file and add some plugins:
+
+```bash
+yarn add @babel/preset-env --dev
+```
 
 For more information see:
 [https://babeljs.io/docs/en/babel-preset-env/](https://babeljs.io/docs/en/babel-preset-env/)
 
 In order to enable the preset you have to define it in your .babelrc file, like
-this: `{ "presets": ["env"] }`
+this:
+
+```json
+{ "presets": ["env"] }
+```
 
 We then want to specific which _stage_ of babel presets you want to use. Lets
 use stage 2 for this. You can read more about stage 2
@@ -79,7 +92,7 @@ use stage 2 for this. You can read more about stage 2
 
 in your .babelrc file:
 
-```
+```json
 {
   "presets": [
     "env",
@@ -119,7 +132,9 @@ Give your app a name, this can be anything you'd like. We will call our app
 
 Next, we're going to add the `dotenv` package:
 
-`yarn add dotenv`
+```bash
+yarn add dotenv
+```
 
 Dotenv is a zero-dependency module that loads environment variables from a .env
 file into
@@ -133,14 +148,19 @@ Step 7. Add Dev Dependencies
 #### babel-cli
 
 http://babeljs.io/docs/en/babel-cli/ - I don’t really understand what this does
-`yarn add --dev babel-cli`
+
+```bash
+yarn add --dev babel-cli
+```
 
 #### Nodemon
 
 nodemon is a tool that helps develop node.js based applications by automatically
 restarting the node application when file changes in the directory are detected.
 
-`yarn add --dev nodemon`
+```bash
+yarn add --dev nodemon
+```
 
 #### Prettier
 
@@ -149,11 +169,13 @@ be very helpful for projects with many developers working in the same files. No
 fights over spaces vs tabs because it's all preconfigured! You don't need to use
 prettier, but this is the config we use at Shopify:
 
-`yarn add --dev prettier`
+```bash
+yarn add --dev prettier
+```
 
 create a `.prettierrc` file and add:
 
-```
+```json
 {
   "arrowParens": "always",
   "singleQuote": true,

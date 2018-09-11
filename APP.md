@@ -417,3 +417,72 @@ should see a full HTML document with an `app` div and our App component's
 
 This App component will come to represent the our entire tree of components,
 which can be as deep as it needs to be without ever changing this tag.
+
+#### Step 3: React in the Browser
+
+Much like we have a server folder for server code, lets create a client folder
+for client code. We should strive to end up with very little code in this folder
+as the bulk of our logic should be universal between both the server and client,
+living in the `/app` folder.
+
+So, first make a `client` folder and within in an `index.js` file. Like this:
+`./client/index.js`.
+
+Next we are going to mount our same React application in the browser, this is
+called "hydrating" the DOM.
+
+```js
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+import App from '../app/App';
+
+console.log('hello from the client');
+
+ReactDOM.hydrate(<App />, document.getElementById('app'));
+```
+
+FYI: Why use hydrate instead of render? ReactDOM.hydrate() is same as render(),
+but is used to hydrate(attach event listeners) to a container whose HTML
+contents were rendered by ReactDOMServer. React will attempt to attach event
+listeners to the existing markup. Using ReactDOM.render() to hydrate a
+server-rendered container is deprecated because of slowness.
+
+In our code we are looking for an element with the id `app` and using that
+element to as the place to mount our client-side react app.
+
+But where does this element with the `app` id come from? Well, remember the HTML
+component we imported from `@shopify/react-html`? It automatically wraps our
+contents in a div with an id of `app`. Conviently it will also add our
+client-side script to the markup, if we tell it to.
+
+Our client-side script will need to include React, ReactDOM, our app component
+and anything else we add in the future.
+
+This middleware will look for a `webpack.config.js` in the project root and that
+will tell webpack how to compile our code. For our app, we want to run our `js`
+files through the `babel-loader`. We did that earlier in our workshop, but lets
+complete our webpack set up now:
+
+(IT NEEDS TO BE LIKE
+THIS)(https://github.com/Shopify/unite-react-node-app-workshop/blob/1c405970a0fc19107719963f159b37e5e566b940/webpack.config.js)
+
+Now that this middleware is installed you should see a 'Compiled Successfully'
+message in your console. The final step is to tell our `<HTML />` component to
+include the compiled script bundle.
+
+This is done with a prop to our the `<HTML />` component called `deferedScripts`
+we can add that now. As mentioned earlier, props are pretty standard in React.
+They're just inputs on the component.
+
+So head back to `render-react-app` and add the `deferedScripts` prop to our HTML
+component like this:
+
+```js
+<HTML
+  deferedScripts={[{path: 'bundle.js'}]}
+>
+```
+
+Now if you refresh the browser, you should see a log in our console "Hello from
+the client", this is coming from client-side Javascript. 👏
