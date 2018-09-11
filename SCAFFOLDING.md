@@ -110,6 +110,13 @@ SHOPIFY_SECRET=YOUR_SHOPIFY_SECRET
 To get a Shopify API Key and Secret you need to create an app in the
 [Partners Dashboard](https://www.shopify.ca/partners).
 
+Once you're logged into the Shopify Partners dashboard click "Apps" from the
+main dashboard navigation. Then click "Create app".
+
+Give your app a name, this can be anything you'd like. We will call our app
+`cool-fun-example app`. The interface will provide you both an `API_KEY` and
+`SHOPIFY_SECRET`. Add those to the key value pairs in your `.env` file.
+
 Next, we're going to add the `dotenv` package:
 
 `yarn add dotenv`
@@ -164,3 +171,13 @@ Let’s add an editor config file, do we need this?
 https://github.com/Shopify/unite-react-node-app-workshop/blob/master/.editorconfig
 
 ---
+
+More info:
+
+- [babel](https://babeljs.io/) lets us use modern syntax and JSX everywhere
+- [webpack](https://webpack.js.org/) compiles our client-side code into a bundle
+- [prettier](https://prettier.io/) make our code look pretty and maintains
+  consistency
+- [dotenv](https://github.com/motdotla/dotenv) helps configure our environment
+  variables
+- [koa](https://koajs.com/) minimalistic and modern node server framework

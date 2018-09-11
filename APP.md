@@ -88,3 +88,58 @@ server.listen(PORT, () => {
 ```
 
 ---
+
+### Exposing our dev environment to the internet
+
+At Shopify we typically use ngrok as a tunnel. You will need to download ngrok
+at [https://ngrok.com/download](https://ngrok.com/download) and signup for a
+free account. Move the unziped ngrok client to your user folder and run the
+following in your terminal.
+
+```bash
+$ ./ngrok http 3000
+```
+
+This should display a UI in your terminal with the public URL of your tunnel and
+other status and metrics information about connections made over your tunnel. It
+should something like this: ![image of ngrok](assets/ngrok.png)
+
+FYI: This basically takes whatever is running on `locahost:3000` and puts it on
+that `ngrok` url. You could send that url to a friend and they could take a look
+at your work, or you could use it as the URL in your Shopify Partner account!
+
+---
+
+### Setting up our URL on the partners dashboard
+
+Now that we've exposed our development enviroment to ngrok, lets go ahead and
+add that url to the
+[Shopify Partners dashboard](https://partners.shopify.com/organizations).
+
+Once you're logged into the Shopify Partners dashboard click "Apps" from the
+main dashboard navigation. Find your version of the `cool-fun-example-app` (the
+same place we got our API_KEY from earlier)
+
+Set the app URL to the public URL of your ngrok tunnel. This should be displayed
+in the UI under "Fowarding" and should end with `.ngrok.io` for example
+`https://e3fd01a0.ngrok.io`.
+
+In this guide we'll be using `/auth/callback` as our oauth callback route, so
+add that to your whitelist.
+
+(PARTNERS DASHBOARD SCREENSHOT HERE)
+
+---
+
+### Starting the app
+
+Ensure your packages are up to date by running `yarn install` and then your
+start command, which should be `yarn start`
+
+Open a browser and go to either [localhost:3000](localhost:3000) or the url
+provided by ngrok.
+
+If successful, you should see a hello message in your browser (that you set up
+via scaffolding, right?).
+
+---
