@@ -143,3 +143,131 @@ If successful, you should see a hello message in your browser (that you set up
 via scaffolding, right?).
 
 ---
+
+### Lets build the app!
+
+#### Step 1: Auth
+
+So, earlier we set up our middlewear with Koa. That works just fine, we've seen
+our hello friends.
+
+We're not going to use koa to authenticate ourselves and have our app show
+itself in the Shopify store. Shopify has it's own koa-auth package that we will
+use:
+
+```bash
+yarn add koa-session @shopify/koa-shopify-auth
+```
+
+FYI: You can learn more about the this package
+[here](https://www.npmjs.com/package/@shopify/koa-shopify-auth).
+
+In our `./server/index.js` add the following lines to your file:
+
+```js
+import session from 'koa-session';
+import createShopifyAuth from '@shopify/koa-shopify-auth';
+```
+
+We can mount our middlware by adding the following lines after we intialize our
+new Koa app.
+
+```js
+app.use(session(app));
+```
+
+We are mounting the session middleware and passing our Koa app instance into it.
+
+Next we need to use the Shopify Auth Middleware. To configure it we'll need to
+pass the apiKey, and our secret.
+
+We can grab both our `SHOPIFY_SECRET` and `SHOPIFY_API_KEY` from the
+environment. Remember that `dotenv` package? That's helping us out here.
+
+```js
+const { SHOPIFY_API_KEY, SHOPIFY_SECRET } = process.env;
+```
+
+Then we'll add the middleware to the app and pass in some configuration.
+
+```js
+app.use(
+  createShopifyAuth({
+    // your shopify app's api key
+    apiKey: SHOPIFY_API_KEY,
+    // your shopify app's api secret
+    secret: SHOPIFY_SECRET,
+    // our app's permissions
+    // we need to write products to the user's store, there are more permissions you can add
+    scopes: ['write_products'],
+    // our own custom logic after authentication has completed
+    afterAuth(ctx) {
+      const { shop, accessToken } = ctx.session;
+
+      console.log('We did it!', shop, accessToken);
+
+      ctx.redirect('/');
+    }
+  })
+);
+```
+
+`afterAuth` here tells our app what to do when an authentication successfully
+completes. We will just print a message and redirect to the root or our app.
+
+With this done, we'll add `app.keys` to let us use session securely. Set this to
+your Shopify secret before we mount our session middleware.
+
+```js
+app.keys = [SHOPIFY_SECRET];
+```
+
+To try out our authenticate flow, lets visit
+`YOUR_HTTPS_NGROK_URL/auth?shop=YOUR_SHOP_DOMAIN`.
+
+You might see an error screen that states:
+
+```
+Oauth error invalid_request: The redirect_uri is not whitelisted
+```
+
+(OAUTH SCREENSHOT HERE)
+
+To solve this we need to login to our partners dashboard, go to our App Info and
+add `YOUR_HTTPS_NGROK_URL/auth/callback` to "Whitelisted redirection URL(s)"
+textarea.
+
+Now if you try to authenicate again,
+(`YOUR_HTTPS_NGROK_URL/auth?shop=YOUR_SHOP_DOMAIN`) it should take you to
+install the app in the Shopify admin. Once its installed you can verify it shows
+by going to to `YOUR_SHOPIFY_URL/admin/apps`.
+
+We now have an authentication route, but users can still go straight to our
+index without logging in. You can verifiy this by clearing your cookies or
+loading the your ngrok url in an icognito tab. The next step will protect our
+`Hello friends` with a verification middleware.
+
+The `@shopify/koa-shopify-auth` package exports a middleware for this exact
+purpose. For more info
+[here](https://www.npmjs.com/package/@shopify/koa-shopify-auth)
+
+```js
+import createShopifyAuth, { verifyRequest } from '@shopify/koa-shopify-auth';
+```
+
+_server/index.js_
+
+Now we can add the following between our Auth and Hello friends middlewares.
+
+```js
+// secure all middleware after this line
+//what is the difference between creatVerifyRequest and verifyRequest? I'm using verifyRequest
+app.use(verifyRequest());
+```
+
+Everything below this middleware will require authentication, everything above
+will not.
+
+🎉Congratulations!🎉 You have just built a app that will render in the Shopify
+admin and knows how to authenicate with Shopify. Now lets actually work on
+making our app do something.
