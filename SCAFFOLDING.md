@@ -148,9 +148,10 @@ This will help us later when we need to use our API key and secret variables.
 
 #### Step 7. Add Dev Dependencies
 
-#### babel-cli
+#### [Babel-cli](http://babeljs.io/docs/en/babel-cli/)
 
-http://babeljs.io/docs/en/babel-cli/ - I don’t really understand what this does
+Babel cli allows you to compile files on the fly from the command line and is
+useful to create build scripts and deploy.
 
 ```bash
 yarn add --dev babel-cli
