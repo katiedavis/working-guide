@@ -83,7 +83,7 @@ in your .babelrc file:
 {
   "presets": [
     "env",
-    **"stage-2"**
+   **"@babel/preset-stage-2"**
   ]
 }
 ```
