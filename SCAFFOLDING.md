@@ -42,8 +42,11 @@ Step 5. Add babel, add webpack, configure webpack to use babel-loader.
 We want to run our js files through the babel-loader so that we can use modern
 JS syntax. This package transpiles our Javascript through webpack!
 
+We’ll use webpack 4 for this. Webpack is an open-source Javascript module
+bundler. It consumes your client side code, traverses it’s dependencies, and
+generates static assets representing those modules. So, add webpack:
 `yarn add webpack webpack-cli` (if you're using webpack v4 or later, you'll need
-to install the CLI.) Install babel.
+to install the CLI.) Install babel:
 [https://babeljs.io/en/setup#installation](https://babeljs.io/en/setup#installation)
 At the time of writing this guide, babel gives you an interface to choose your
 desired set up. We want to use webpack, so after selecting that our command
@@ -52,11 +55,112 @@ would be: `yarn add babel-loader babel-core`
 ie: Choose your tool -> webpack Installation ->
 `yarn add babel-loader babel-core`
 
-Create `webpack.config.js` file and add
+Create `webpack.config.js` file and add:
 
-````module: {
-  rules: [
-    { test: /\.js$/, exclude: /node_modules/, loader: "babel-loader" }
+```
+module: {
+    rules: [
+        { test: /\.js$/, exclude: /node_modules/, loader: "babel-loader" }
+    ]
+}
+```
+
+Create a .babelrc file and add some plugins: `yarn add @babel/preset-env --dev`
+
+For more information see:
+[https://babeljs.io/docs/en/babel-preset-env/](https://babeljs.io/docs/en/babel-preset-env/)
+
+In order to enable the preset you have to define it in your .babelrc file, like
+this: `{ "presets": ["env"] }`
+
+We then want to specific which _stage_ of babel presets you want to use. Lets
+use stage 2 for this. You can read more about stage 2
+[here](https://babeljs.io/docs/en/babel-preset-stage-2)
+
+in your .babelrc file:
+
+```
+{
+  "presets": [
+    "env",
+    **"stage-2"**
   ]
-}```
-````
+}
+```
+
+---
+
+Step 6. Add .env file, and get our API Key and Secret from the Partners
+Dashboard
+
+Storing configuration in the environment separate from code is based on The
+[Twelve-Factor App methodology](https://12factor.net/config).
+
+Before creating a `.env` let’s add it to our `.gitignore`
+
+Let’s add a `.env` file
+
+The `.env` file will contain:
+
+```
+SHOPIFY_API_KEY=YOUR_SHOPIFY_API_KEY
+SHOPIFY_SECRET=YOUR_SHOPIFY_SECRET
+```
+
+To get a Shopify API Key and Secret you need to create an app in the
+[Partners Dashboard](https://www.shopify.ca/partners).
+
+Next, we're going to add the `dotenv` package:
+
+`yarn add dotenv`
+
+Dotenv is a zero-dependency module that loads environment variables from a .env
+file into
+[process.env](https://nodejs.org/docs/latest/api/process.html#process_process_env).
+This will help us later when we need to use our API key and secret variables.
+
+---
+
+Step 7. Add Dev Dependencies
+
+#### babel-cli
+
+http://babeljs.io/docs/en/babel-cli/ - I don’t really understand what this does
+`yarn add --dev babel-cli`
+
+#### Nodemon
+
+nodemon is a tool that helps develop node.js based applications by automatically
+restarting the node application when file changes in the directory are detected.
+
+`yarn add --dev nodemon`
+
+#### Prettier
+
+Prettier is a package that helps keep your code clean and easy to read. It can
+be very helpful for projects with many developers working in the same files. No
+fights over spaces vs tabs because it's all preconfigured! You don't need to use
+prettier, but this is the config we use at Shopify:
+
+`yarn add --dev prettier`
+
+create a `.prettierrc` file and add:
+
+```
+{
+  "arrowParens": "always",
+  "singleQuote": true,
+  "bracketSpacing": false,
+  "trailingComma": "all"
+}
+```
+
+---
+
+Step 8. Some extras
+
+Let’s add an editor config file, do we need this?
+
+https://github.com/Shopify/unite-react-node-app-workshop/blob/master/.editorconfig
+
+---
