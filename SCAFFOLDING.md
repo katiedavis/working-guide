@@ -109,7 +109,7 @@ module.exports = {
 Create a `.babelrc` file and add some plugins:
 
 ```bash
-yarn add @babel/preset-env
+yarn add babel-preset-env
 ```
 
 FYI: For more information see
@@ -131,7 +131,7 @@ use stage 2 for this. You can read more about stage 2
 [here](https://babeljs.io/docs/en/babel-preset-stage-2)
 
 ```bash
-yarn add @babel/preset-stage-2
+yarn add babel-preset-stage-2
 ```
 
 in your .babelrc file:

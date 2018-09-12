@@ -3,11 +3,11 @@
 Now that we have laid the ground work for our app, lets build a way to run it!
 In order to do that, we need to add some scripts to our `package.json` file.
 
-```
+```diff
  "scripts": {
    "test": "echo \"Error: no test specified\" && exit 1",
-   "dev": "nodemon --exec babel-node index.js",
-   "start": "yarn run dev"
++  "dev": "nodemon --exec babel-node index.js",
++  "start": "yarn run dev"
  },
 ```
 
@@ -19,7 +19,7 @@ restart the node application when file changes in the directory are detected.
 
 ### Creating our server
 
-Create a `server` folder and inside that an `index.js` file:
+Create a `server` folder at the root level and inside that an `index.js` file:
 
 ie: `./server/index.js`
 
@@ -40,7 +40,9 @@ content or an error key if it failed.
 
 Next, we're going to add a packaged called Koa to our project
 
-`yarn add koa`
+```bash
+yarn add koa
+```
 
 Koa is a minimalistic node framework for modern Javascript apps. It is built
 around the ES2016 `async` and `await` keywords.
@@ -122,12 +124,13 @@ same place we got our API_KEY from earlier)
 
 Set the app URL to the public URL of your ngrok tunnel. This should be displayed
 in the UI under "Fowarding" and should end with `.ngrok.io` for example
-`https://e3fd01a0.ngrok.io`.
+`https://ec4bed7e.ngrok.io`.
 
 In this guide we'll be using `/auth/callback` as our oauth callback route, so
-add that to your whitelist.
+add that to your whitelist like this:
+`https://YOUR_NGROK_ADDRESS/auth/callback`
 
-(PARTNERS DASHBOARD SCREENSHOT HERE)
+![partners dash create app](assets/dash-setup.png)
 
 ---
 
@@ -139,8 +142,17 @@ start command, which should be `yarn start`
 Open a browser and go to either [localhost:3000](localhost:3000) or the url
 provided by ngrok.
 
-If successful, you should see a hello message in your browser (that you set up
-via scaffolding, right?).
+If you head over to `localhost:3000` in your browser you should see:
+
+```
+Hello Friends 👋
+```
+
+and in your terminal you should see:
+
+```
+🚀 Listening on port 3000
+```
 
 ---
 
@@ -185,7 +197,7 @@ We can grab both our `SHOPIFY_SECRET` and `SHOPIFY_API_KEY` from the
 environment. Remember that `dotenv` package? That's helping us out here.
 
 ```js
-const { SHOPIFY_API_KEY, SHOPIFY_SECRET } = process.env;
+const {SHOPIFY_API_KEY, SHOPIFY_SECRET} = process.env;
 ```
 
 Then we'll add the middleware to the app and pass in some configuration.
@@ -202,13 +214,13 @@ app.use(
     scopes: ['write_products'],
     // our own custom logic after authentication has completed
     afterAuth(ctx) {
-      const { shop, accessToken } = ctx.session;
+      const {shop, accessToken} = ctx.session;
 
       console.log('We did it!', shop, accessToken);
 
       ctx.redirect('/');
-    }
-  })
+    },
+  }),
 );
 ```
 
@@ -252,7 +264,7 @@ purpose. For more info
 [here](https://www.npmjs.com/package/@shopify/koa-shopify-auth)
 
 ```js
-import createShopifyAuth, { verifyRequest } from '@shopify/koa-shopify-auth';
+import createShopifyAuth, {verifyRequest} from '@shopify/koa-shopify-auth';
 ```
 
 Now we can add the following between our Auth and Hello friends middlewares.
@@ -333,14 +345,14 @@ and add the following code.
 
 ```js
 import React from 'react';
-import { renderToString } from 'react-dom/server';
+import {renderToString} from 'react-dom/server';
 import HTML from '@shopify/react-html';
 
-export default ctx => {
+export default (ctx) => {
   const markup = renderToString(
     <HTML>
       <div>Hello this is React speaking to you</div>
-    </HTML>
+    </HTML>,
   );
 
   ctx.body = markup;
