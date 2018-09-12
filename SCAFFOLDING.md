@@ -2,42 +2,66 @@
 
 #### Step 1. Install the latest version of Node.
 
-Install the latest LTS version of node from the official site. This will include
-the npm client we'll use to install dependencies `nvm use 8.11.3` (as of writing
-this 8.11.3 is currently the stable version)
+Install the latest LTS version of node from the
+[official site](https://nodejs.org/en/). This will include the npm client we'll
+use to install dependencies `nvm use 8.11.3` (as of writing this 8.11.3 is
+currently the stable version)
 
 FYI: use `nvm current` to see what version of node you’re using. Use `nvm ls` to
 see what the latest version. Use `nvm --help` to see all commands
 
 ---
 
-#### Step 2. Add package.json by running `npm init`
+#### Step 2. Add package.json
 
-You'll be asked to answer some questions via the command line to build your
-`package.json`:
+We will be using the command line to build up our app! From whatever directory
+you work from type
 
-Example: name: (example-app-workshop) <- your repo name is the default { "name":
-"example-app-workshop", }
+```bash
+ npm init
+```
+
+You'll then be asked to answer some questions via the command line to build your
+`package.json` file:
+
+Example: name: (example-app) <- your repo name is the default will become:
+
+```json
+{"name": "example-app"}
+```
+
+in your `package.json` file
 
 ---
 
 #### Step 3. Add .gitignore and ignore node_modules
 
-Add a `.gitignore` file with `node_modules` in the body of the file, this
-ensures you don't commit a million packages to git. We will also use this later
-in this workshop to ignore our `.env` file.
+Add a `.gitignore` file at the same level as your package.json. add:
+
+```
+node_modules
+.DS_Store
+```
+
+to the body of of this file. This will ensure you don't commit a bunch of
+packages you don't need to track on git. We will add more to this file later.
 
 ---
 
-#### Step 4. Add yarn if you prefer it over npm Check out
+#### Step 4. Add yarn
 
-https://yarnpkg.com/en/docs/install#mac-stable for installing yarn
+We will be using [yarn](https://yarnpkg.com/en/docs/install#mac-stable) in this
+guide, but you're welcome to continue using `npm` if you prefer it.
+
+Head to: https://yarnpkg.com/en/docs/install#mac-stable to install `yarn`.
 
 Once yarn is installed, run
 
 ```bash
 yarn
 ```
+
+`yarn` will install a `yarn.lock` file in the root of your directory.
 
 ---
 
@@ -46,15 +70,19 @@ yarn
 We want to run our js files through the babel-loader so that we can use modern
 JS syntax. This package transpiles our Javascript through webpack!
 
-We’ll use webpack 4 for this. Webpack is an open-source Javascript module
-bundler. It consumes your client side code, traverses it’s dependencies, and
-generates static assets representing those modules. So, add webpack:
-`yarn add webpack webpack-cli` (if you're using webpack v4 or later, you'll need
-to install the CLI.) Install babel:
-[https://babeljs.io/en/setup#installation](https://babeljs.io/en/setup#installation)
-At the time of writing this guide, babel gives you an interface to choose your
-desired set up. We want to use webpack, so after selecting that our command
-would be: `yarn add babel-loader babel-core`
+We’ll use webpack 4 for this. [Webpack](https://webpack.js.org/) is an
+open-source Javascript module bundler. It consumes your client side code,
+traverses it’s dependencies, and generates static assets representing those
+modules. So, add [webpack](https://webpack.js.org/) and
+[webpack-cli](https://webpack.js.org/api/cli/):
+
+```bash
+yarn add webpack webpack-cli
+```
+
+Install [babel](https://babeljs.io/en/setup#installation) - At the time of
+writing this guide, babel gives you an interface to choose your desired set up.
+We want to use webpack, so after selecting that our command would be:
 
 ie: Choose your tool -> webpack Installation ->
 
@@ -62,65 +90,85 @@ ie: Choose your tool -> webpack Installation ->
 yarn add babel-loader babel-core
 ```
 
-Create `webpack.config.js` file and add:
+Create `webpack.config.js` on the same level as our other files file and add:
 
-```json
-module: {
+```js
+module.exports = {
+  module: {
     rules: [
-        { test: /\.js$/, exclude: /node_modules/, loader: "babel-loader" }
-    ]
-}
+      {
+        test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
+        use: ['babel-loader'],
+      },
+    ],
+  },
+};
 ```
 
-Create a .babelrc file and add some plugins:
+Create a `.babelrc` file and add some plugins:
 
 ```bash
-yarn add @babel/preset-env --dev
+yarn add @babel/preset-env
 ```
 
-For more information see:
+FYI: For more information see
 [https://babeljs.io/docs/en/babel-preset-env/](https://babeljs.io/docs/en/babel-preset-env/)
 
 In order to enable the preset you have to define it in your .babelrc file, like
 this:
 
-```json
-{ "presets": ["env"] }
+```js
+  {
+  "presets": [
+    "env"
+  ]
+}
 ```
 
 We then want to specific which _stage_ of babel presets you want to use. Lets
 use stage 2 for this. You can read more about stage 2
 [here](https://babeljs.io/docs/en/babel-preset-stage-2)
 
+```bash
+yarn add @babel/preset-stage-2
+```
+
 in your .babelrc file:
 
-```json
-{
+```diff
+  {
   "presets": [
     "env",
-   **"@babel/preset-stage-2"**
++   "stage-2"
   ]
 }
 ```
 
 ---
 
-#### Step 6. Add .env file, and get our API Key and Secret from the Partners
+#### Step 6. Set up partners dash dependencies
 
-Dashboard
-
-Storing configuration in the environment separate from code is based on The
+We're going to now add a place that we can keep our `API_KEY` and
+`SHOPIFY_SECRET` tht are provided to us in the Partners dashboard. Storing
+configuration in the environment separate from code is based on The
 [Twelve-Factor App methodology](https://12factor.net/config).
 
-Before creating a `.env` let’s add it to our `.gitignore`
+Before creating a `.env` let’s add it to our `.gitignore`:
 
-Let’s add a `.env` file
+```diff
+node_modules
+.DS_Store
++.env
+```
+
+Let’s add a `.env` file at the same level as our other files
 
 The `.env` file will contain:
 
-```
-SHOPIFY_API_KEY=YOUR_SHOPIFY_API_KEY
-SHOPIFY_SECRET=YOUR_SHOPIFY_SECRET
+```json
+SHOPIFY_API_KEY='YOUR_SHOPIFY_API_KEY'
+SHOPIFY_SECRET='YOUR_SHOPIFY_SECRET'
 ```
 
 To get a Shopify API Key and Secret you need to create an app in the
@@ -129,8 +177,9 @@ To get a Shopify API Key and Secret you need to create an app in the
 Once you're logged into the Shopify Partners dashboard click "Apps" from the
 main dashboard navigation. Then click "Create app".
 
+![partners dash create app](assets/create-app.png)
 Give your app a name, this can be anything you'd like. We will call our app
-`cool-fun-example app`. The interface will provide you both an `API_KEY` and
+`cool-fun-example app`. It requires a url, so you can just put a placeholder there for the time being. We will eventually add our `ngrok` tunnel address in it's place. The interface will provide you both an `API_KEY` and
 `SHOPIFY_SECRET`. Add those to the key value pairs in your `.env` file.
 
 Next, we're going to add the `dotenv` package:
