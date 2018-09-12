@@ -73,4 +73,35 @@ export default function() {
 }
 ```
 
+This actually won't work though, and if you open your browser console you'll see
+an error because you have not used `AppProvider`.
+
+The `AppProvider` component is required at the top level of your app when using
+Polaris. It should wrap all the other components in your tree. Lets add it to
+our `app.js` file.
+
+```diff
+import React from 'react';
++ import '@shopify/polaris/styles.css';
+- import {TextStyle} from '@shopify/polaris/styles.css';
++ import {AppProvider, TextStyle} from '@shopify/polaris/styles.css';
+
+export default function() {
+  return (
+-    <div>
++    <AppProvider>
+-      <h1>Cool guy example app</h1>
++      <TextStyle>Cool guy example app</TextStyle>
+-    </div>
++    </AppProvider>
+  );
+}
+```
+
 You should see an updated version of your title on your page now.
+
+---
+
+Step 2 - App Bridge/Embedded components
+
+Now that Polaris is available to us, we can use it's _embedded components_.
