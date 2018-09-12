@@ -1,6 +1,6 @@
 ## Front end of app
 
-#### Step 1
+### Step 1
 
 Now that we are building out our client side, lets talk about our component
 Library, [Polaris](https://polaris.shopify.com/).
@@ -84,7 +84,7 @@ our `app.js` file.
 import React from 'react';
 + import '@shopify/polaris/styles.css';
 - import {TextStyle} from '@shopify/polaris/styles.css';
-+ import {AppProvider, TextStyle} from '@shopify/polaris/styles.css';
++ import {AppProvider, TextStyle} from '@shopify/polaris';
 
 export default function() {
   return (
@@ -102,6 +102,115 @@ You should see an updated version of your title on your page now.
 
 ---
 
-Step 2 - App Bridge/Embedded components
+### Step 2 - App Bridge/Embedded components
 
-Now that Polaris is available to us, we can use it's _embedded components_.
+Now that Polaris is available to us, we can use it's _embedded components_. We
+use a library called `app-bridge` with embedded apps to help the app communicate
+properly with it's parent (embedded apps are in an Iframe) and to provide a
+streamlined experience for our merchants. The
+[app-bridge](https://github.com/Shopify/app-bridge) library does not depend on
+any external libraries and can be implimented with vanilla Javascript.
+
+(SHOULD WE DEMO IT OR JUST POINT TO DOCS)
+
+Because we're using `Polaris` we have access to `app-bridge` via it's
+components. The `AppProvider` actually takes two props, and with some magic on
+our end, it initalizes `app-bridge`. Lets add those now:
+
+The AppProvider takes our `API_KEY` and the `SHOP_ORIGIN` props. We can use our
+`API_KEY` from our `.env` file, but getting the `SHOP_ORIGIN` key can be a bit
+more tricky.
+
+Lets get our variables:
+
+#### Step 1
+
+Head back to our `render-react-app.js` file. It should look like this:
+
+```js
+import React from 'react';
+import { renderToString } from 'react-dom/server'; //do we talk about this elsewhere?
+import HTML from '@shopify/react-html';
+
+import App from '../app/App';
+
+export default ctx => {
+  const markup = renderToString(
+    <HTML>
+      <App />
+    </HTML>
+  );
+
+  ctx.body = markup;
+};
+```
+
+In our `server.js` file, we have access to both the `API_KEY` - it's stored in
+our `.dotenv` file and the merchants `SHOP_ORIGIN` - it's returned upon
+authentication. They're both stored in our session, which is great...but how do
+we use them in our React component?
+
+Our HTML component can take a `prop` called `data` that we can pass that stuff
+in!
+
+```diff
+import React from 'react';
+import { renderToString } from 'react-dom/server'; //do we talk about this elsewhere?
+import HTML from '@shopify/react-html';
+
+import App from '../app/App';
+
+export default ctx => {
++  const data = {
++   apiKey: config.apiKey,
++   shopOrigin: ctx.session.shop,
++  };
+  const markup = renderToString(
++    <HTML data={data}>
+      <App />
+    </HTML>
+  );
+
+  ctx.body = markup;
+};
+```
+
+So, we're getting our the `apiKey` variable from our config set up in our
+`.dotenv` file, and we are getting the shopOrigin from the `koa-session`.
+
+In order to ue this data, that's passed in via the HTML to our App on the client
+side, we need to seralize it. We have a package for that,
+[@shopify/react-serialize](https://github.com/Shopify/quilt/tree/master/packages/react-serialize).
+Lets add it now:
+
+```bash
+yarn add @shopify/react-serialize
+```
+
+We can now get our seralized data in our `App.js` file and add it to our
+AppProvider like this:
+
+```diff
+import React from 'react';
+import '@shopify/polaris/styles.css';
+import {AppProvider, TextStyle} from '@shopify/polaris';
++ import {getSerialized} from '@shopify/react-serialize';
+
+export default function() {
+  return (
+   <AppProvider
++    apiKey={getSerialized('apiKey').data}
++   shopOrigin={`https://${getSerialized('shopOrigin').data}`}
+    >
+     <TextStyle>Cool guy example app</TextStyle>
+   </AppProvider>
+  );
+}
+```
+
+Polaris does some work on it's end, and it now knows that our app is an embedded
+app!
+
+(NEED TO ADD A LOT MORE HERE)
+
+---
