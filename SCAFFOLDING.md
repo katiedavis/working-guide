@@ -7,7 +7,7 @@ Install the latest LTS version of node from the
 use to install dependencies `nvm use 8.11.3` (as of writing this 8.11.3 is
 currently the stable version)
 
-FYI: use `nvm current` to see what version of node you’re using. Use `nvm ls` to
+👩🏻‍🏫: use `nvm current` to see what version of node you’re using. Use `nvm ls` to
 see what the latest version. Use `nvm --help` to see all commands
 
 ---
@@ -112,7 +112,7 @@ Create a `.babelrc` file and add some plugins:
 yarn add babel-preset-env
 ```
 
-FYI: For more information see
+👩🏻‍🏫: For more information see
 [https://babeljs.io/docs/en/babel-preset-env/](https://babeljs.io/docs/en/babel-preset-env/)
 
 In order to enable the preset you have to define it in your .babelrc file, like
