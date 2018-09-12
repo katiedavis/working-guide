@@ -1,13 +1,13 @@
 ## Inital set up of our app
 
-#### Step 1. Install the latest version of Node. Install the latest LTS version of
+#### Step 1. Install the latest version of Node.
 
-node from the official site. This will include the npm client we'll use to
-install dependencies `nvm use 8.11.3` (as of writing this 8.11.3 is currently
-the stable version)
+Install the latest LTS version of node from the official site. This will include
+the npm client we'll use to install dependencies `nvm use 8.11.3` (as of writing
+this 8.11.3 is currently the stable version)
 
-** use `nvm current` to see what version of node you’re using ** use `nvm ls` to
-see what the latest version \*\* use `nvm --help` to see all commands
+FYI: use `nvm current` to see what version of node you’re using. Use `nvm ls` to
+see what the latest version. Use `nvm --help` to see all commands
 
 ---
 
