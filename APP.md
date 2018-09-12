@@ -34,7 +34,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 ```
 
-FYI - config will read your `.env` file, parse the contents, assign it to
+👩🏻‍🏫 - config will read your `.env` file, parse the contents, assign it to
 process.env, and return an Object with a parsed key containing the loaded
 content or an error key if it failed.
 
@@ -79,8 +79,15 @@ Now, lets add an `index.js` file at the root level of our project.
 In the file, start a server listening for connections on a given port, we are
 going to use `port 3000.`
 
+We also need to add a package called [isomorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch) that adds fetch globally so it's consistent between client and server.
+
+```bash
+yarn add isomorphic-fetch
+```
+
 ```
 import server from './server';
+import 'isomorphic-fetch';
 
 const {PORT = 3000} = process.env;
 
@@ -106,7 +113,7 @@ This should display a UI in your terminal with the public URL of your tunnel and
 other status and metrics information about connections made over your tunnel. It
 should something like this: ![image of ngrok](assets/ngrok.png)
 
-FYI: This basically takes whatever is running on `locahost:3000` and puts it on
+👩🏻‍🏫: This basically takes whatever is running on `locahost:3000` and puts it on
 that `ngrok` url. You could send that url to a friend and they could take a look
 at your work, or you could use it as the URL in your Shopify Partner account!
 
@@ -160,37 +167,65 @@ and in your terminal you should see:
 
 #### Step 1: Auth
 
-So, earlier we set up our middlewear with Koa. That works just fine, we've seen
+So, earlier we set up our middleware with Koa. That works just fine, we've seen
 our hello friends.
 
 We're not going to use koa to authenticate ourselves and have our app show
 itself in the Shopify store. Shopify has it's own koa-auth package that we will
-use:
+use. Lets add it now along with [koa-session](https://github.com/koajs/session) which will handle cookie-based session :
 
 ```bash
 yarn add koa-session @shopify/koa-shopify-auth
 ```
 
-FYI: You can learn more about the this package
-[here](https://www.npmjs.com/package/@shopify/koa-shopify-auth).
+👩🏻‍🏫: You can learn more about the this package
+[here](https://www.npmjs.com/package/@shopify/koa-shopify-auth) and koa-session [here](https://github.com/koajs/session).
 
 In our `./server/index.js` add the following lines to your file:
 
-```js
-import session from 'koa-session';
-import createShopifyAuth from '@shopify/koa-shopify-auth';
+```diff
+  import dotenv from 'dotenv';
+  import Koa from 'koa';
++ import session from 'koa-session';
++ import createShopifyAuth from '@shopify/koa-shopify-auth';
+
+  dotenv.config();
+
+  const app = new Koa();
+
+  app.use(function index(ctx) {
+   console.log('Hello Friends 👋');
+   ctx.body = 'Hello Friends 👋';
+  });
+
+ export default app;
 ```
 
 We can mount our middlware by adding the following lines after we intialize our
 new Koa app.
 
-```js
-app.use(session(app));
+```diff
+  import dotenv from 'dotenv';
+  import Koa from 'koa';
+  import session from 'koa-session';
+  import createShopifyAuth from '@shopify/koa-shopify-auth';
+
+  dotenv.config();
+
+  const app = new Koa();
++ app.use(session(app));
+
+  app.use(function index(ctx) {
+   console.log('Hello Friends 👋');
+   ctx.body = 'Hello Friends 👋';
+  });
+
+ export default app;
 ```
 
 We are mounting the session middleware and passing our Koa app instance into it.
 
-Next we need to use the Shopify Auth Middleware. To configure it we'll need to
+Next we need to use the Shopify Auth Middleware that we imported. To configure it we'll need to
 pass the apiKey, and our secret.
 
 We can grab both our `SHOPIFY_SECRET` and `SHOPIFY_API_KEY` from the
@@ -234,8 +269,54 @@ your Shopify secret before we mount our session middleware.
 app.keys = [SHOPIFY_SECRET];
 ```
 
+At this point, our `./server/index.js` file should look like this:
+
+```js
+import dotenv from 'dotenv';
+import Koa from 'koa';
+import session from 'koa-session';
+import createShopifyAuth from '@shopify/koa-shopify-auth';
+
+dotenv.config();
+
+const {SHOPIFY_API_KEY, SHOPIFY_SECRET} = process.env;
+
+const app = new Koa();
+app.use(session(app));
+
+app.keys = [SHOPIFY_SECRET];
+
+app.use(
+  createShopifyAuth({
+    // your shopify app's api key
+    apiKey: SHOPIFY_API_KEY,
+    // your shopify app's api secret
+    secret: SHOPIFY_SECRET,
+    // our app's permissions
+    // we need to write products to the user's store, there are more permissions you can add
+    scopes: ['write_products'],
+    // our own custom logic after authentication has completed
+    afterAuth(ctx) {
+      const {shop, accessToken} = ctx.session;
+
+      console.log('We did it!', shop, accessToken);
+
+      ctx.redirect('/');
+    },
+  }),
+);
+
+app.use(function index(ctx) {
+  console.log('Hello Friends 👋');
+  ctx.body = 'Hello Friends 👋';
+});
+
+export default app;
+```
+
 To try out our authenticate flow, lets visit
 `YOUR_HTTPS_NGROK_URL/auth?shop=YOUR_SHOP_DOMAIN`.
+(WE HAVE NEVER TALKED ABOUT A TEST STORE!)
 
 You might see an error screen that states:
 
@@ -251,32 +332,76 @@ textarea.
 
 Now if you try to authenicate again,
 (`YOUR_HTTPS_NGROK_URL/auth?shop=YOUR_SHOP_DOMAIN`) it should take you to
-install the app in the Shopify admin. Once its installed you can verify it shows
-by going to to `YOUR_SHOPIFY_URL/admin/apps`.
+install the app in the Shopify admin. Which will look like this:
+![install page](/assets/install.png)
+
+Once its installed you can verify it shows
+by going to to `YOUR_SHOPIFY_TEST_STORE/admin/apps`.
 
 We now have an authentication route, but users can still go straight to our
 index without logging in. You can verifiy this by clearing your cookies or
 loading the your ngrok url in an icognito tab. The next step will protect our
 `Hello friends` with a verification middleware.
 
-The `@shopify/koa-shopify-auth` package exports a middleware for this exact
+👩🏻‍🏫: The `@shopify/koa-shopify-auth` package exports a middleware for this exact
 purpose. For more info
 [here](https://www.npmjs.com/package/@shopify/koa-shopify-auth)
+in our `./server/index.js` file add:
 
 ```js
-import createShopifyAuth, {verifyRequest} from '@shopify/koa-shopify-auth';
+import createShopifyAuth, {
+  createVerifyRequest,
+} from '@shopify/koa-shopify-auth';
 ```
 
 Now we can add the following between our Auth and Hello friends middlewares.
 
 ```js
 // secure all middleware after this line
-//what is the difference between creatVerifyRequest and verifyRequest? I'm using verifyRequest
+//what is the difference between creatcreateVerifyRequest and createVerifyRequest? I'm using createVerifyRequest
 app.use(verifyRequest());
 ```
 
 Everything below this middleware will require authentication, everything above
-will not.
+will not. Our index file should look like this:
+
+```js
+import dotenv from 'dotenv';
+import Koa from 'koa';
+import session from 'koa-session';
+import createShopifyAuth, {verifyRequest} from '@shopify/koa-shopify-auth';
+
+dotenv.config();
+const {SHOPIFY_SECRET, SHOPIFY_API_KEY} = process.env;
+
+const app = new Koa();
+app.use(session(app));
+
+app.keys = [SHOPIFY_SECRET];
+
+console.log(SHOPIFY_SECRET, SHOPIFY_API_KEY);
+
+app.use(
+  createShopifyAuth({
+    apiKey: SHOPIFY_API_KEY,
+    secret: SHOPIFY_SECRET,
+    scopes: ['write_products'],
+    afterAuth(ctx) {
+      const {shop, accessToken} = ctx.session;
+
+      console.log('We did it!', shop, accessToken);
+
+      ctx.redirect('/');
+    },
+  }),
+);
+
+app.use(createVerifyRequest());
+
+export default app;
+```
+
+You should now see your `console.log` with `shop` andd `accessToken` that are returned upon authentication!
 
 🎉Congratulations!🎉 You have just built a app that will render in the Shopify
 admin and knows how to authenicate with Shopify. Now lets actually work on
@@ -336,7 +461,7 @@ code, lets install a Shopify package that helps us do this.
 yarn add @shopify/react-html
 ```
 
-FYI:
+👩🏻‍🏫:
 [For more info on this package](https://www.npmjs.com/package/@shopify/react-html)
 
 This middleware will be a bit larger than our others, so lets devote a new file
@@ -359,7 +484,7 @@ export default (ctx) => {
 };
 ```
 
-FYI: React-HTML provides us a component that replaces a standard static HTML
+👩🏻‍🏫: React-HTML provides us a component that replaces a standard static HTML
 file like ie: `index.html` and it includes a div with an id 'app', which will
 come in handy later. This could be replaced by index.html, or an esj file if you
 prefered.
@@ -454,7 +579,7 @@ console.log('hello from the client');
 ReactDOM.hydrate(<App />, document.getElementById('app'));
 ```
 
-FYI: Why use hydrate instead of render? ReactDOM.hydrate() is same as render(),
+👩🏻‍🏫: Why use hydrate instead of render? ReactDOM.hydrate() is same as render(),
 but is used to hydrate(attach event listeners) to a container whose HTML
 contents were rendered by ReactDOMServer. React will attempt to attach event
 listeners to the existing markup. Using ReactDOM.render() to hydrate a
