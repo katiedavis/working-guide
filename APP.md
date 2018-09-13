@@ -263,7 +263,7 @@ app.use(
 completes. We will just print a message and redirect to the root or our app.
 
 With this done, we'll add `app.keys` to let us use session securely. Set this to
-your Shopify secret before we mount our session middleware.
+your Shopify secret _before_ we mount our session middleware.
 
 ```js
 app.keys = [SHOPIFY_SECRET];
@@ -504,7 +504,7 @@ middleware to the chain:
 + app.use(renderReactApp);
 ```
 
-ou should now see "Hello this is React speaking to you", which is great but we
+you should now see "Hello this is React speaking to you", which is great but we
 actually want to render our app, not just a string. To do this we need to start
 thinking in components.
 
