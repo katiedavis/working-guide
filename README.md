@@ -1,3 +1,3 @@
 # How to build a public, embedded app
 
-Working guide in sections
+A true WIP. A discovery version of how to build an app
